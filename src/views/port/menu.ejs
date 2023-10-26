@@ -1,0 +1,67 @@
+<nav class="navbar navbar-expand-lg navbar-light mt-2 mb-2" style="background-color: #e3f2fd;">
+  <div class="container-fluid">
+    <a class="navbar-brand" href="/">Главная</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+        <li class="nav-item">
+          <a class="nav-link" href="/api/advertisements">Объявления</a>
+        </li>
+      </ul>
+      <% if(createAdvBtn) { %>
+        <button type="button" class="btn btn-success mx-2" data-bs-toggle="modal" data-bs-target="#addAdvModal">
+          Создать объявление
+        </button>
+      <% } %>
+      <% if(authBtn) { %>
+        <a href="/api/signin">
+          <button type="button" class="btn btn-primary mx-2">
+            Войти
+          </button>
+        </a>
+      <% } %>
+    </div>
+  </div>
+</nav>
+
+<h1><%= title %></h1>
+
+<% if(createAdvBtn) { %>
+  <div class="modal fade" id="addAdvModal" tabindex="-1" aria-labelledby="advModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="advModalLabel">Добавить книгу</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form method="POST" class="row" enctype="multipart/form-data">
+            <div class="mb-3">
+              <label for="shortText" class="form-label">Тема объявления</label>
+              <input type="text" name="shortText" class="form-control" id="shortText" placeholder="Введите тему объявления" required>
+            </div>
+            <div class="mb-3">
+              <label for="description" class="form-label">Описание</label>
+              <textarea class="form-control" name="description" id="description" rows="3" placeholder="Введите описание"></textarea>
+            </div>
+            <div class="mb-3">
+              <label for="tags" class="form-label">Теги</label>
+              <input type="text" name="tags" class="form-control" id="tags" placeholder="Перечислите теги через запятую">
+            </div>
+            <div class="mb-3">
+              <label for="images" class="form-label">Файл</label>
+              <input type="file" name="images" class="form-control" id="images" multiple>
+            </div>
+            <div class="mb-3">
+              <button type="submit" class="btn btn-primary">Отправить</button>
+              <button type="reset" class="btn btn-secondary">Очистить</button>
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+<% } %>

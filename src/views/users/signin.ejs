@@ -1,0 +1,31 @@
+<%- include('../port/layout-start', { title: title }) %>
+<%- include('../port/menu', { title: title, createAdvBtn: false, authBtn: false }) %>
+
+<% if (errorText && errorText.length) { %>
+  <p class="text-center">
+    <span class="text-danger"><%= errorText %></span>
+  </p>
+<% } %>
+
+<form method="POST" class="row">
+  <div class="mb-3">
+    <label for="email" class="form-label">Почта</label>
+    <input type="email" name="email" class="form-control" id="email" placeholder="Введите почту" required>
+  </div>
+  <div class="mb-3">
+    <label for="password" class="form-label">Пароль</label>
+    <input type="password" name="password" class="form-control" id="password" placeholder="Введите пароль" required>
+  </div>
+  <div class="mb-3">
+    <button type="submit" class="btn btn-primary">Войти</button>
+  </div>
+</form>
+
+<p class="text-center">
+  <span>Ещё не зарегистрированы?</span>
+  <a href="/api/signup">
+    <span>Регистрация</span>
+  </a>
+</p>
+
+<%- include('../port/layout-end') %>
