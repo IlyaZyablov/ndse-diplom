@@ -1,0 +1,49 @@
+<%- include('../port/layout-start', { title: title }) %>
+<%- include('../port/menu', { title: title, createAdvBtn: createAdvBtn, authBtn: authBtn }) %>
+
+<div class="card">
+  <div class="card-body">
+    <h5 class="card-title"><%= adv.shortText %></h5>
+    <p class="card-text"><%= adv.description %></p>
+    <% if (adv.images.length) { %>
+      <div id="carouselExampleControls" class="carousel slide" data-bs-ride="carousel">
+        <div class="carousel-inner">
+          <% adv.images.map((el, idx) => { %>
+            <% if (idx === 0) { %>
+              <div class="carousel-item active">
+                <img src=<%= el %> class="d-block w-100" alt="Картинка объявления">
+              </div>
+            <% } else { %>
+              <div class="carousel-item">
+                <img src=<%= el %> class="d-block w-100" alt="Картинка объявления">
+              </div>
+            <% } %>
+          <% }) %>
+        </div>
+        <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleControls" data-bs-slide="prev">
+          <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+          <span class="visually-hidden">Назад</span>
+        </button>
+        <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleControls" data-bs-slide="next">
+          <span class="carousel-control-next-icon" aria-hidden="true"></span>
+          <span class="visually-hidden">Вперёд</span>
+        </button>
+      </div>
+    <% } else { %>
+      <p class="mt-5">Изображения отсутствуют.</p>
+    <% } %>
+  </div>
+  <ul class="list-group list-group-flush">
+    <li class="list-group-item">Имя автора: <%= adv.user.name %></li>
+    <li class="list-group-item">Почта автора: <%= adv.user.email %></li>
+    <li class="list-group-item">Контактный номер телефона автора: <%= adv.user.contactPhone %></li>
+    <li class="list-group-item">Теги: <%= adv.tags %></li>
+  </ul>
+  <div class="card-body">
+    <a href="/api/advertisements" class="card-link">
+      <button class="btn btn-outline-primary" type="button">Назад</button>
+    </a>
+  </div>
+</div>
+
+<%- include('../port/layout-end') %>

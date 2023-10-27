@@ -1,4 +1,4 @@
-import mongoose, { Schema, model } from 'mongoose';
+import { Schema, model } from 'mongoose';
 
 const adsSchema = new Schema({
   shortText: {
@@ -13,8 +13,8 @@ const adsSchema = new Schema({
     type: Array,
     default: [],
   },
-  userId: {
-    type: mongoose.Types.ObjectId,
+  user: {
+    type: Object,
     required: true,
   },
   tags: {
@@ -26,7 +26,7 @@ const adsSchema = new Schema({
     required: true,
   },
 }, {
-  timestamps: { createdAt: 'created_at', updatedAt: 'updated_at' },
+  timestamps: true,
 });
 
 const Advertisements = model('Advertisements', adsSchema);

@@ -7,6 +7,7 @@
       <tr>
         <th scope="col">#</th>
         <th scope="col">Тема</th>
+        <th scope="col">Опубликовано</th>
         <th scope="col">Действия</th>
       </tr>
     </thead>
@@ -15,11 +16,12 @@
         <tr>
             <th scope="row"><%= idx + 1 %></th>
             <td><%= el.shortText %></td>
+            <td><%= el.createdAt %></td>
             <td>
-              <a class="btn btn-sm btn-primary" href="/advertisement/<%= el.id %>">
+              <a class="btn btn-sm btn-primary" href="/api/advertisements/<%= el._id %>">
                 <i class="bi bi-info-circle-fill"></i>
               </a>
-              <form action="/advertisement/delete/<%= el.id %>" method="POST" class="d-inline">
+              <form action="/api/advertisements/delete/<%= el._id %>" method="POST" class="d-inline">
                 <button class="btn btn-sm btn-danger">
                   <i class="bi bi-x-circle-fill"></i>
                 </button>

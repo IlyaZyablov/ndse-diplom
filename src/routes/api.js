@@ -4,12 +4,16 @@ import { Strategy } from 'passport-local';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import moment from 'moment';
 import UserModule from '../modules/UserModule.js';
 import AdvModule from '../modules/AdvModule.js';
 import uploadFile from '../middleware/file.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+
+moment.locale('ru');
+
 const apiRouter = express.Router();
 
 const register = async (req, email, password, done) => {
@@ -131,7 +135,7 @@ apiRouter.post('/signin', passport.authenticate('login', {
 function deleteImages(images) {
   for (let i = 0; i < images.length; i++) {
     const img = images[i];
-    fs.unlinkSync(path.join(__dirname, '..', `public/adv/${img}`), deleteError => {
+    fs.unlinkSync(path.join(__dirname, '..', `public${img}`), deleteError => {
       if (deleteError) console.error(deleteError);
     });
   }
@@ -141,9 +145,14 @@ apiRouter.get('/advertisements', async (req, res) => {
   try {
     const advertisements = await AdvModule.findAll();
 
+    const advertisementsRender = advertisements.data.map(el => {
+      const parsedTime = moment(el.createdAt).startOf('hour').fromNow();
+      return { ...el._doc, createdAt: parsedTime };
+    });
+
     res.render('adv/index', {
       title: 'Список объявлений',
-      list: advertisements.data,
+      list: advertisementsRender,
       createAdvBtn: req.isAuthenticated(),
       authBtn: !req.isAuthenticated(),
     });
@@ -173,13 +182,6 @@ apiRouter.post('/advertisements', async (req, res) => {
 
       const { shortText, description, tags } = req.body;
 
-      const images = [];
-
-      for (let i = 0; i < req.files.length; i++) {
-        const file = req.files[i];
-        images.push(file.filename);
-      }
-
       let tagsArray = [];
       if (tags) {
         tagsArray = [...tags.split(',').map(el => el.trim())];
@@ -187,11 +189,23 @@ apiRouter.post('/advertisements', async (req, res) => {
 
       const user = await UserModule.findByEmail(req.session.passport.user);
 
+      const images = [];
+
+      for (let i = 0; i < req.files.length; i++) {
+        const file = req.files[i];
+        images.push(`/uploads/${user._id}/${file.filename}`);
+      }
+
       const result = await AdvModule.create({
         shortText,
         description: description || '',
         images,
-        userId: user._id,
+        user: {
+          id: user._id,
+          email: user.email,
+          name: user.name,
+          contactPhone: user.contactPhone,
+        },
         tags: tagsArray,
       });
 
@@ -213,6 +227,113 @@ apiRouter.post('/advertisements', async (req, res) => {
     res.render('errors/404', {
       title: 'Ошибка!',
       text: 'Ошибка при создании объявления!',
+      authBtn: !req.isAuthenticated(),
+    });
+  }
+});
+
+apiRouter.get('/advertisements/:id', async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const advertisement = await AdvModule.find({ id });
+
+    if (advertisement.status === 'ok') {
+      res.render('adv/view', {
+        title: 'Просмотр объявления',
+        adv: advertisement.data[0],
+        createAdvBtn: false,
+        authBtn: !req.isAuthenticated(),
+      });
+    } else {
+      res.render('errors/404', {
+        title: 'Ошибка!',
+        text: advertisement.error,
+        authBtn: !req.isAuthenticated(),
+      });
+    }
+  } catch (error) {
+    console.error(error);
+    res.render('errors/404', {
+      title: 'Ошибка!',
+      text: 'Объявление не найдено!',
+      authBtn: !req.isAuthenticated(),
+    });
+  }
+});
+
+apiRouter.get('/search', async (req, res) => {
+  console.log(req.query);
+  const {
+    shortText, description, tags, userId,
+  } = req.query;
+
+  if (!shortText || !description || !tags || !userId) {
+    res.render('errors/404', {
+      title: 'Ошибка!',
+      text: 'Не все аргументы поиска указаны! (shortText, description, tags, userId)',
+      authBtn: !req.isAuthenticated(),
+    });
+  }
+
+  try {
+    const advertisement = await AdvModule.find({
+      shortText, description, tags, userId,
+    });
+
+    if (advertisement.status === 'ok') {
+      res.render('adv/view', {
+        title: 'Просмотр объявления',
+        adv: advertisement.data[0],
+        createAdvBtn: false,
+        authBtn: !req.isAuthenticated(),
+      });
+    } else {
+      res.render('errors/404', {
+        title: 'Ошибка!',
+        text: advertisement.error,
+        authBtn: !req.isAuthenticated(),
+      });
+    }
+  } catch (error) {
+    console.error(error);
+    res.render('errors/404', {
+      title: 'Ошибка!',
+      text: 'Объявление не найдено!',
+      authBtn: !req.isAuthenticated(),
+    });
+  }
+});
+
+apiRouter.post('/advertisements/delete/:id', async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    if (!req.isAuthenticated()) {
+      res.render('errors/404', {
+        title: 'Ошибка!',
+        text: 'Для удаления этого объявления требуется авторизация!',
+        authBtn: !req.isAuthenticated(),
+      });
+      return;
+    }
+
+    const advertisement = await AdvModule.remove({ id, email: req.session.passport.user });
+
+    if (advertisement.status === 'ok') {
+      res.redirect('/api/advertisements');
+    } else {
+      res.render('errors/404', {
+        title: 'Ошибка!',
+        text: advertisement.error,
+        authBtn: !req.isAuthenticated(),
+      });
+    }
+  } catch (error) {
+    console.error(error);
+    res.render('errors/404', {
+      title: 'Ошибка!',
+      text: 'Объявление не найдено!',
       authBtn: !req.isAuthenticated(),
     });
   }

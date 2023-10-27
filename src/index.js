@@ -17,6 +17,7 @@ const app = express();
 app.use(express.json());
 app.use(express.urlencoded());
 app.set('view engine', 'ejs');
+app.use('/uploads', express.static(path.join(__dirname, 'public', 'uploads')));
 app.set('views', path.join(__dirname, '/views'));
 app.use(session({ secret: 'SECRET' }));
 
