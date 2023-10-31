@@ -86,4 +86,40 @@ export default class UserModule {
         );
     });
   }
+
+  static findById(id) {
+    return new Promise((resolve, reject) => {
+      Users.findById(id)
+        .then(
+          user => {
+            if (user) {
+              resolve(user);
+              return;
+            }
+
+            resolve(null);
+          },
+          err => {
+            reject(err);
+            console.log('UserModule.findById ERROR');
+            console.error(err);
+          },
+        );
+    });
+  }
+
+  static findAll() {
+    return new Promise((resolve, reject) => {
+      Users.find().select('_id name').then(
+        result => {
+          resolve({ status: 'ok', data: result });
+        },
+        error => {
+          reject(error);
+          console.log('UserModule.findAll ERROR');
+          console.error(error);
+        },
+      );
+    });
+  }
 }

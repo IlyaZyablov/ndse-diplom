@@ -1,137 +1,19 @@
 import express from 'express';
-import passport from 'passport';
-import { Strategy } from 'passport-local';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import moment from 'moment';
-import UserModule from '../modules/UserModule.js';
 import AdvModule from '../modules/AdvModule.js';
+import UserModule from '../modules/UserModule.js';
 import uploadFile from '../middleware/file.js';
+
+moment.locale('ru');
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-moment.locale('ru');
+const advRouter = express.Router();
 
-const apiRouter = express.Router();
-
-const register = async (req, email, password, done) => {
-  try {
-    const result = await UserModule.create({
-      email,
-      password,
-      name: req.body.name,
-      contactPhone: req.body.contactPhone,
-    });
-
-    if (result.status === 'error') {
-      done(null, false, {
-        message: result.error,
-      });
-      return;
-    }
-
-    done(null, result.data);
-  } catch (error) {
-    done(error);
-    console.log(error);
-  }
-};
-
-const registerOptions = {
-  usernameField: 'email',
-  passwordField: 'password',
-  passReqToCallback: true,
-};
-
-passport.use('register', new Strategy(registerOptions, register));
-
-const login = async (email, password, done) => {
-  try {
-    const result = await UserModule.login({ email, password });
-
-    if (result.status === 'error') {
-      done(null, false, {
-        message: result.error,
-      });
-      return;
-    }
-
-    done(null, result.data);
-  } catch (error) {
-    done(error);
-    console.log(error);
-  }
-};
-
-const loginOptions = {
-  usernameField: 'email',
-  passwordField: 'password',
-};
-
-passport.use('login', new Strategy(loginOptions, login));
-
-passport.serializeUser((user, done) => {
-  done(null, user.email);
-});
-
-passport.deserializeUser(async (email, done) => {
-  try {
-    const user = await UserModule.findByEmail(email);
-
-    done(null, user);
-  } catch (error) {
-    done(error);
-    console.log(error);
-  }
-});
-
-// РЕГИСТРАЦИЯ
-
-apiRouter.get('/signup', (req, res) => {
-  let errorText = '';
-
-  if (req.session.messages) {
-    errorText = req.session.messages[0];
-    req.session.messages = [];
-  }
-
-  res.render('users/signup', {
-    title: 'Регистрация',
-    errorText,
-  });
-});
-
-apiRouter.post('/signup', passport.authenticate('register', {
-  successRedirect: '/',
-  failureRedirect: '/api/signup',
-  failureMessage: true,
-}));
-
-// АВТОРИЗАЦИЯ
-
-apiRouter.get('/signin', (req, res) => {
-  let errorText = '';
-
-  if (req.session.messages) {
-    errorText = req.session.messages[0];
-    req.session.messages = [];
-  }
-
-  res.render('users/signin', {
-    title: 'Авторизация',
-    errorText,
-  });
-});
-
-apiRouter.post('/signin', passport.authenticate('login', {
-  successRedirect: '/',
-  failureRedirect: '/api/signin',
-  failureMessage: true,
-}));
-
-// ОБЪЯВЛЕНИЯ
 function deleteImages(images) {
   for (let i = 0; i < images.length; i++) {
     const img = images[i];
@@ -141,7 +23,7 @@ function deleteImages(images) {
   }
 }
 
-apiRouter.get('/advertisements', async (req, res) => {
+advRouter.get('/advertisements', async (req, res) => {
   try {
     const advertisements = await AdvModule.findAll();
 
@@ -166,7 +48,7 @@ apiRouter.get('/advertisements', async (req, res) => {
   }
 });
 
-apiRouter.post('/advertisements', async (req, res) => {
+advRouter.post('/advertisements', async (req, res) => {
   try {
     const uploadImages = uploadFile.array('images', 10);
 
@@ -232,7 +114,7 @@ apiRouter.post('/advertisements', async (req, res) => {
   }
 });
 
-apiRouter.get('/advertisements/:id', async (req, res) => {
+advRouter.get('/advertisements/:id', async (req, res) => {
   const { id } = req.params;
 
   try {
@@ -262,7 +144,7 @@ apiRouter.get('/advertisements/:id', async (req, res) => {
   }
 });
 
-apiRouter.get('/search', async (req, res) => {
+advRouter.get('/search', async (req, res) => {
   console.log(req.query);
   const {
     shortText, description, tags, userId,
@@ -305,7 +187,7 @@ apiRouter.get('/search', async (req, res) => {
   }
 });
 
-apiRouter.post('/advertisements/delete/:id', async (req, res) => {
+advRouter.post('/advertisements/delete/:id', async (req, res) => {
   const { id } = req.params;
 
   try {
@@ -339,4 +221,4 @@ apiRouter.post('/advertisements/delete/:id', async (req, res) => {
   }
 });
 
-export default apiRouter;
+export default advRouter;

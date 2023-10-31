@@ -1,0 +1,36 @@
+<%- include('../port/layout-start', { title: title }) %>
+<%- include('../port/menu', { title: title, createAdvBtn: false, authBtn: false }) %>
+
+<% if(messages.length) { %>
+  <table class="table">
+    <thead>
+      <tr>
+        <th scope="col">Имя</th>
+        <th scope="col">Отправлено</th>
+        <th scope="col">Текст</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% messages.map(el => { %>
+        <tr>
+            <td><%= el.name %></td>
+            <td><%= el.date %></td>
+            <td><%= el.text %></td>
+        </tr>
+    <% }) %>
+    </tbody>
+  </table>
+<% } else { %>   
+  <h3 class="mt-5">В данном чате отсутствуют сообщения!</h3>
+<% } %>
+
+<form method="POST" class="row mt-5">
+  <div class="mb-3">
+    <input type="text" name="message" class="form-control" id="message" placeholder="Введите текст сообщения" required>
+  </div>
+  <div class="mb-3">
+    <button type="submit" class="btn btn-primary">Отправить</button>
+  </div>
+</form>
+
+<%- include('../port/layout-end') %>

@@ -1,0 +1,33 @@
+<%- include('../port/layout-start', { title: title }) %>
+<%- include('../port/menu', { title: title, createAdvBtn: false, authBtn: authBtn }) %>
+
+<% if(list.length) { %>
+  <table class="table">
+    <thead>
+      <tr>
+        <th scope="col">#</th>
+        <th scope="col">Имя</th>
+        <th scope="col">Действия</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% list.map((el, idx) => { %>
+        <tr>
+            <th scope="row"><%= idx + 1 %></th>
+            <td><%= el.name %></td>
+            <td>
+              <a href="/api/chats/<%= el._id %>">
+                <button class="btn btn-sm btn-danger">
+                  <i class="bi bi-envelope-fill"></i>
+                </button>
+              </a>
+            </td>
+        </tr>
+    <% }) %>
+    </tbody>
+  </table>
+<% } else { %>   
+  <h3 class="mt-5">Нет зарегистрированных пользователей!</h3>
+<% } %>
+
+<%- include('../port/layout-end') %>

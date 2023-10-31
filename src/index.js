@@ -5,6 +5,8 @@ import passport from 'passport';
 import session from 'express-session';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import http from 'http';
+import { Server } from 'socket.io';
 import indexRouter from './routes/index.js';
 
 config();
@@ -13,6 +15,13 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const app = express();
+const server = http.createServer(app);
+const io = new Server(server);
+
+io.on('connection', socket => {
+  console.log('a user connected');
+  console.log(socket);
+});
 
 app.use(express.json());
 app.use(express.urlencoded());
@@ -32,7 +41,7 @@ async function mongoConnect(url) {
   try {
     await mongoose.connect(url);
 
-    app.listen(PORT, () => {
+    server.listen(PORT, () => {
       console.log(`Server started at port ${PORT}`);
     });
   } catch (error) {

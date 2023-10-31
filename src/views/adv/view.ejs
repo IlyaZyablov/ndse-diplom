@@ -11,11 +11,11 @@
           <% adv.images.map((el, idx) => { %>
             <% if (idx === 0) { %>
               <div class="carousel-item active">
-                <img src=<%= el %> class="d-block w-100" alt="Картинка объявления">
+                <img src="<%= el %>" class="d-block w-100" alt="Картинка объявления">
               </div>
             <% } else { %>
               <div class="carousel-item">
-                <img src=<%= el %> class="d-block w-100" alt="Картинка объявления">
+                <img src="<%= el %>" class="d-block w-100" alt="Картинка объявления">
               </div>
             <% } %>
           <% }) %>
