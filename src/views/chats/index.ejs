@@ -1,36 +1,31 @@
 <%- include('../port/layout-start', { title: title }) %>
 <%- include('../port/menu', { title: title, createAdvBtn: false, authBtn: false }) %>
 
-<% if(messages.length) { %>
-  <table class="table">
-    <thead>
-      <tr>
-        <th scope="col">Имя</th>
-        <th scope="col">Отправлено</th>
-        <th scope="col">Текст</th>
-      </tr>
-    </thead>
-    <tbody>
-      <% messages.map(el => { %>
-        <tr>
-            <td><%= el.name %></td>
-            <td><%= el.date %></td>
-            <td><%= el.text %></td>
-        </tr>
-    <% }) %>
-    </tbody>
-  </table>
-<% } else { %>   
-  <h3 class="mt-5">В данном чате отсутствуют сообщения!</h3>
-<% } %>
+<div class="row">
+  <div class="col-4">
+      <div id="list" class="list-group">
+        <% if(messages.length) { %>
+          <% messages.map(el => { %>
+            <div class="list-group-item list-group-item-action">
+              <div class="d-flex w-100 justify-content-between">
+                  <small><%= el.name %></small>
+                  <small class="text-muted"><%= el.date %></small>
+              </div>
+              <div class="mt-1 mb-1 messageStyle"><%= el.text %></div>
+            </div>
+          <% }) %>
+        <% } %> 
+      </div>
+  </div>
+</div>
 
-<form method="POST" class="row mt-5">
+<form class="row mt-5">
   <div class="mb-3">
-    <input type="text" name="message" class="form-control" id="message" placeholder="Введите текст сообщения" required>
+    <input id="msgText" type="text" name="message" class="form-control" placeholder="Введите текст сообщения" required>
   </div>
   <div class="mb-3">
-    <button type="submit" class="btn btn-primary">Отправить</button>
+    <button id="sendBtn" type="button" class="btn btn-primary">Отправить</button>
   </div>
 </form>
 
-<%- include('../port/layout-end') %>
+<%- include('../port/layout-end', { socketActive: true }) %>

@@ -16,11 +16,11 @@
             <th scope="row"><%= idx + 1 %></th>
             <td><%= el.name %></td>
             <td>
-              <a href="/api/chats/<%= el._id %>">
-                <button class="btn btn-sm btn-danger">
+              <form action="/api/startchat/<%= el._id %>" method="POST" class="d-inline">
+                <button class="btn btn-sm btn-success">
                   <i class="bi bi-envelope-fill"></i>
                 </button>
-              </a>
+              </form>
             </td>
         </tr>
     <% }) %>
@@ -30,4 +30,4 @@
   <h3 class="mt-5">Нет зарегистрированных пользователей!</h3>
 <% } %>
 
-<%- include('../port/layout-end') %>
+<%- include('../port/layout-end', { socketActive: false }) %>

@@ -5,5 +5,47 @@
       integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
       crossorigin="anonymous"
     ></script>
+
+    <% if (socketActive) { %>
+      <script src="/socket.io/socket.io.js"></script>
+      
+      <script>
+        const url = window.location.href.split('/');
+        const socket = io('/', { query: `roomName=${url[url.length - 1]}` });
+
+        const getTmp = msg => {
+          return `
+            <div class="list-group-item list-group-item-action">
+              <div class="d-flex w-100 justify-content-between">
+                <small>${msg.name}</small>
+                <small class="text-muted">${msg.date}</small>
+              </div>
+              <div class="mt-1 mb-1 messageStyle">${msg.text}</div>
+            </div>
+          `;
+        }
+
+        const boxList = document.querySelector('#list');
+        const msgText = document.querySelector('#msgText');
+        const sendBtn = document.querySelector('#sendBtn');
+
+        sendBtn.addEventListener('click', evt => {
+          evt.target.blur();
+
+          if (!msgText.value.length) return;
+          
+          socket.emit('message-to-chat', {
+            text: msgText.value.trim(),
+          });
+
+          msgText.value = '';
+        });
+
+        socket.on('message-to-chat', (msg) => {
+          const div = getTmp(msg);
+          boxList.insertAdjacentHTML('beforeend', div);
+        });
+      </script>
+    <% } %>
   </body>
 </html>

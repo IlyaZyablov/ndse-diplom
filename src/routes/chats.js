@@ -4,8 +4,8 @@ import ChatModule from '../modules/ChatModule.js';
 
 const chatsRouter = express.Router();
 
-chatsRouter.get('/chats/:id', async (req, res) => {
-  const { id } = req.params;
+chatsRouter.post('/startchat/:userID', async (req, res) => {
+  const { userID } = req.params;
 
   try {
     if (!req.isAuthenticated()) {
@@ -28,7 +28,7 @@ chatsRouter.get('/chats/:id', async (req, res) => {
     //   return;
     // }
 
-    const target = await UserModule.findById(id);
+    const target = await UserModule.findById(userID);
 
     if (!target) {
       res.render('errors/404', {
@@ -39,26 +39,48 @@ chatsRouter.get('/chats/:id', async (req, res) => {
       return;
     }
 
-    let chat = await ChatModule.find([user._id.toHexString(), id]);
+    let chat = await ChatModule.find([user._id.toHexString(), userID]);
 
     if (!chat) {
-      chat = await ChatModule.create([user._id.toHexString(), id]);
-      res.render('chats/index', {
-        title: `Сообщения с ${target.name}`,
-        messages: [],
+      chat = await ChatModule.create([user._id.toHexString(), userID]);
+    }
+
+    res.redirect(`/api/chats/${chat._id}`);
+  } catch (error) {
+    console.log('[ERROR]: startChat error');
+    console.error(error);
+    res.render('errors/404', {
+      title: 'Ошибка!',
+      text: 'Не удалось загрузить чат с этим пользователем!',
+      authBtn: !req.isAuthenticated(),
+    });
+  }
+});
+
+chatsRouter.get('/chats/:chatID', async (req, res) => {
+  const { chatID } = req.params;
+
+  try {
+    if (!req.isAuthenticated()) {
+      res.render('errors/404', {
+        title: 'Ошибка!',
+        text: 'Для обмена сообщениями требуется авторизация!',
+        authBtn: !req.isAuthenticated(),
       });
       return;
     }
 
-    const chatHistory = await ChatModule.getHistory(chat._id);
+    const chatHistory = await ChatModule.getHistory(chatID);
 
+    console.log('chatHistory');
     console.log(chatHistory);
 
     res.render('chats/index', {
-      title: `Сообщения с ${target.name}`,
+      title: 'Чат',
       messages: chatHistory,
     });
   } catch (error) {
+    console.log('[ERROR]: getChat error');
     console.error(error);
     res.render('errors/404', {
       title: 'Ошибка!',

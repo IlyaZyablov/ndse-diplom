@@ -10,7 +10,7 @@ const messageShema = new Schema({
     required: true,
   },
   readAt: {
-    type: Date,
+    type: String,
     default: '',
   },
 }, {

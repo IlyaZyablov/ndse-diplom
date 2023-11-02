@@ -65,7 +65,14 @@ export default class ChatModule {
 
   static async getHistory(chatID) {
     try {
-      const chat = Chat.findById(chatID).select('messages');
+      const chat = await Chat.findById(chatID).select('messages');
+
+      const messages = [];
+      for (let i = 0; i < chat.messages.length; i++) {
+        const message = chat.messages[i];
+        const findMessage = await MessageModule.find(message);
+        messages.push(findMessage.data);
+      }
 
       return new Promise(resolve => {
         if (!chat.messages.length) {
@@ -73,19 +80,9 @@ export default class ChatModule {
           return;
         }
 
-        const messages = [];
-        for (let i = 0; i < chat.messages.length; i++) {
-          const message = chat.messages[i];
-          MessageModule.find(message).then(
-            result => {
-              messages.push(result);
-            },
-          );
-        }
-
-        const parsedMessage = this.parseMessages(messages);
-
-        resolve(parsedMessage);
+        this.parseMessages(messages).then(result => {
+          resolve(result);
+        });
       });
     } catch (error) {
       console.log('[ERROR]: ChatModule.getHistory -');
@@ -93,20 +90,45 @@ export default class ChatModule {
     }
   }
 
-  static parseMessages(messages) {
+  static async parseMessages(messages) {
     const result = [];
     for (let i = 0; i < messages.length; i++) {
-      UserModule.findById(messages[i].author).then(
-        user => {
-          result.push({
-            name: user.name,
-            date: moment(messages[i].sentAt).startOf('hour').fromNow(),
-            text: messages[i].text,
-          });
-        },
-      );
+      const user = await UserModule.findById(messages[i].author);
+      result.push({
+        name: user.name,
+        date: moment(messages[i].sentAt).startOf('hour').fromNow(),
+        text: messages[i].text,
+      });
     }
 
-    return result;
+    return new Promise(resolve => {
+      resolve(result);
+    });
+  }
+
+  static async sendMessage(chatID, email, text) {
+    try {
+      const user = await UserModule.findByEmail(email);
+
+      const chat = await Chat.findById(chatID).select('messages');
+
+      const newMessage = await MessageModule.create(user._id, text);
+
+      chat.messages.push(newMessage);
+
+      await Chat.updateOne(
+        { _id: chatID },
+        { $push: { messages: newMessage._id } },
+      );
+
+      return new Promise(resolve => {
+        this.parseMessages([chat.messages[chat.messages.length - 1]]).then(result => {
+          resolve(result[0]);
+        });
+      });
+    } catch (error) {
+      console.log('[ERROR]: ChatModule.sendMessage -');
+      console.error(error);
+    }
   }
 }
