@@ -19,14 +19,14 @@ chatsRouter.post('/startchat/:userID', async (req, res) => {
 
     const user = await UserModule.findByEmail(req.session.passport.user);
 
-    // if (id === user._id.toHexString()) {
-    //   res.render('errors/404', {
-    //     title: 'Ошибка!',
-    //     text: 'Вы не можете обмениваться сообщениями с самим собой!',
-    //     authBtn: !req.isAuthenticated(),
-    //   });
-    //   return;
-    // }
+    if (userID === user._id.toHexString()) {
+      res.render('errors/404', {
+        title: 'Ошибка!',
+        text: 'Вы не можете обмениваться сообщениями с самим собой!',
+        authBtn: !req.isAuthenticated(),
+      });
+      return;
+    }
 
     const target = await UserModule.findById(userID);
 
@@ -71,9 +71,6 @@ chatsRouter.get('/chats/:chatID', async (req, res) => {
     }
 
     const chatHistory = await ChatModule.getHistory(chatID);
-
-    console.log('chatHistory');
-    console.log(chatHistory);
 
     res.render('chats/index', {
       title: 'Чат',

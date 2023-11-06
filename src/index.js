@@ -20,12 +20,12 @@ const server = http.createServer(app);
 const io = new Server(server);
 
 app.use(express.json());
-app.use(express.urlencoded());
+app.use(express.urlencoded({ extended: true }));
 app.set('view engine', 'ejs');
 app.use('/uploads', express.static(path.join(__dirname, 'public', 'uploads')));
 app.set('views', path.join(__dirname, '/views'));
 
-const sessionMiddleware = session({ secret: 'SECRET' });
+const sessionMiddleware = session({ secret: 'SECRET', resave: true, saveUninitialized: true });
 app.use(sessionMiddleware);
 
 app.use(passport.initialize());
@@ -44,12 +44,10 @@ io.on('connection', socket => {
   const { roomName } = socket.handshake.query;
   socket.join(roomName);
 
-  socket.on('message-to-chat', async msg => {
+  socket.on('sendMessage', async msg => {
     const newMessage = await ChatModule.sendMessage(roomName, socket.request.session.passport?.user, msg.text);
-    console.log('newMessage DEBUG');
-    console.log(newMessage);
-    socket.to(roomName).emit('message-to-chat', newMessage);
-    socket.emit('message-to-chat', newMessage);
+    socket.to(roomName).emit('newMessage', newMessage);
+    socket.emit('newMessage', newMessage);
   });
 
   socket.on('disconnect', () => {
@@ -61,6 +59,7 @@ const PORT = process.env.HTTP_PORT || 3000;
 
 async function mongoConnect(url) {
   try {
+    console.log(url);
     await mongoose.connect(url);
 
     server.listen(PORT, () => {

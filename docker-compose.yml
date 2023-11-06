@@ -1,0 +1,8 @@
+services:
+  ndse-diplom:
+    build: .
+    ports:
+      - 80:3000
+    environment:
+      - HTTP_PORT=3000
+      - MONGO_URL=mongodb+srv://ilyazyablov:vdI0aOdOuhkLyfzC@diplom.kakstbi.mongodb.net/?retryWrites=true&w=majority

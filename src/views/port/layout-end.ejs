@@ -34,14 +34,14 @@
 
           if (!msgText.value.length) return;
           
-          socket.emit('message-to-chat', {
+          socket.emit('sendMessage', {
             text: msgText.value.trim(),
           });
 
           msgText.value = '';
         });
 
-        socket.on('message-to-chat', (msg) => {
+        socket.on('newMessage', (msg) => {
           const div = getTmp(msg);
           boxList.insertAdjacentHTML('beforeend', div);
         });
